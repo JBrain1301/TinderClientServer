@@ -1,17 +1,21 @@
 package ru.jbrain.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.jbrain.bot.Bot;
 import ru.jbrain.commands.CommandExecutor;
 import ru.jbrain.commands.CommandHandler;
+import ru.jbrain.commands.client.RestClient;
+import ru.jbrain.keyboard.KeyboardSetter;
 
 
 @Configuration
@@ -23,18 +27,21 @@ public class AppConfig {
     private String serverPort;
 
     @Bean
+    public MediaType mediaType() {
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        return JSON;
+    }
+
+    @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient();
     }
+
     @Bean
     public ReplyKeyboardMarkup ReplyKeyboardMarkup() {
         return new ReplyKeyboardMarkup();
     }
 
-    @Bean
-    public JSONObject jsonObject() {
-        return new JSONObject();
-    }
 
     @Bean
     public ObjectMapper ObjectMapper() {
@@ -52,8 +59,17 @@ public class AppConfig {
     }
 
     @Bean
+    KeyboardSetter keyboardSetter() {
+        return new KeyboardSetter();
+    }
+
+    @Bean
     public CommandExecutor commandExecutor() {
         return new CommandExecutor();
+    }
+    @Bean
+    RestClient restClient() {
+        return new RestClient(okHttpClient(),mediaType(),getServerAddress());
     }
 
     @Bean
